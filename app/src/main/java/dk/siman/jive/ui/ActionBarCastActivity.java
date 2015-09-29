@@ -17,6 +17,7 @@ package dk.siman.jive.ui;
 
 import android.app.ActivityOptions;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -171,6 +172,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateLoggingStatus(getApplicationContext());
         LogHelper.d(TAG, "Activity onCreate");
 
         // Ensure that Google Play Service is available.
@@ -178,6 +180,14 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
         mCastManager = VideoCastManager.getInstance();
         mCastManager.reconnectSessionIfPossible();
+    }
+
+    private void updateLoggingStatus(Context context) {
+        if (PrefUtils.isVerboseLogging(context)) {
+            LogHelper.setVerboseLogging(true);
+        } else {
+            LogHelper.setVerboseLogging(false);
+        }
     }
 
     @Override
@@ -371,15 +381,15 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         };
 
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-           @Override
-           public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               if (position != selectedPosition) {
-                   view.setBackgroundColor(getResources().getColor(
-                       R.color.drawer_item_selected_background));
-                   mItemToOpenWhenDrawerCloses = position;
-               }
-               mDrawerLayout.closeDrawers();
-           }
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (position != selectedPosition) {
+                    view.setBackgroundColor(getResources().getColor(
+                            R.color.drawer_item_selected_background));
+                    mItemToOpenWhenDrawerCloses = position;
+                }
+                mDrawerLayout.closeDrawers();
+            }
         });
         mDrawerList.setAdapter(adapter);
     }

@@ -54,6 +54,8 @@
     <string name="settings_equalizer_summary">Fine tune your audio settings</string>
     <string name="settings_inverted_title">Invert swipe</string>
     <string name="settings_inverted_summary">Invert swipe left and right functions</string>
+    <string name="settings_logging_title">Verbose logging</string>
+    <string name="settings_logging_summary">Show verbose logging</string>
 
     <string name="about_license_title">Open Source Licenses</string>
     <string name="about_license_summary">License details for open-source software</string>

@@ -26,6 +26,7 @@ public class PrefUtils {
     private static final String PREF_NAMESPACE = "dk.siman.jive.utils.PREFS";
     private static final String FTU_SHOWN = "ftu_shown";
     private static final String INVERT_SWIPE = "invert_swipe";
+    private static final String VERBOSE_LOGGING = "verbose_logging";
 
     private static SharedPreferences getPreferences(Context context) {
         return context.getSharedPreferences(PREF_NAMESPACE, Context.MODE_PRIVATE);
@@ -47,5 +48,14 @@ public class PrefUtils {
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isInvertSwipe(Context context) {
         return getPreferences(context).getBoolean(INVERT_SWIPE, false);
+    }
+
+    public static void setVerboseLogging(Context context, boolean shown) {
+        getPreferences(context).edit().putBoolean(VERBOSE_LOGGING, shown).apply();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public static boolean isVerboseLogging(Context context) {
+        return getPreferences(context).getBoolean(VERBOSE_LOGGING, false);
     }
 }

@@ -63,6 +63,7 @@ public class SettingsActivity extends BaseActivity {
 
             final Preference eqButton = findPreference("settings_equalizer");
             final SwitchPreference swipeInvertSwitch = (SwitchPreference) findPreference("settings_inverted_swipe");
+            final SwitchPreference verboseLoggingSwitch = (SwitchPreference) findPreference("settings_verbose_logging");
 
             eqButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
@@ -82,6 +83,20 @@ public class SettingsActivity extends BaseActivity {
                         PrefUtils.setInvertSwipe(getActivity().getApplicationContext(), true);
                     } else {
                         PrefUtils.setInvertSwipe(getActivity().getApplicationContext(), false);
+                    }
+
+                    return true;
+                }
+            });
+
+            verboseLoggingSwitch.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    LogHelper.d(TAG, "verboseLoggingSwitch: ", newValue);
+                    if (newValue.equals(true)) {
+                        PrefUtils.setVerboseLogging(getActivity().getApplicationContext(), true);
+                    } else {
+                        PrefUtils.setVerboseLogging(getActivity().getApplicationContext(), false);
                     }
 
                     return true;

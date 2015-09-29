@@ -24,6 +24,11 @@ public class LogHelper {
     private static final String LOG_PREFIX = "jive_";
     private static final int LOG_PREFIX_LENGTH = LOG_PREFIX.length();
     private static final int MAX_LOG_TAG_LENGTH = 23;
+    private static boolean verboseLogging = false;
+
+    public static void setVerboseLogging(boolean enable) {
+        verboseLogging = enable;
+    }
 
     private static String makeLogTag(String str) {
         if (str.length() > MAX_LOG_TAG_LENGTH - LOG_PREFIX_LENGTH) {
@@ -42,25 +47,25 @@ public class LogHelper {
 
 
     public static void v(String tag, Object... messages) {
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (verboseLogging) {
             log(tag, Log.VERBOSE, null, messages);
         }
     }
 
     public static void v(String tag, Throwable t, Object... messages) {
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (verboseLogging) {
             log(tag, Log.VERBOSE, t, null, messages);
         }
     }
 
     public static void d(String tag, Object... messages) {
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (verboseLogging) {
             log(tag, Log.DEBUG, null, messages);
         }
     }
 
     public static void d(String tag, Throwable t, Object... messages) {
-        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+        if (verboseLogging) {
             log(tag, Log.DEBUG, t, null, messages);
         }
     }
