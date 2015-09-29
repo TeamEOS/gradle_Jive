@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="?android:selectableItemBackground"
+    android:padding="8dp" >
+
+    <!-- Thumbnail Image -->
+    <ImageView
+        android:id="@+id/thumbnail"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:maxWidth="80dp"
+        android:maxHeight="80dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="8dp" />
+
+    <TextView
+        android:id="@+id/title"
+        tools:text="The Best Music EVAH1111 FOREVER YOUNG I'M AWESOME!!!11^H^H"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_marginTop="14dip"
+        android:layout_alignTop="@+id/thumbnail"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/primary_text"/>
+
+    <TextView
+        android:id="@+id/description"
+        tools:text="John Doe, his brothers, his sisters, his pets and his more than amazing band"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_toRightOf="@+id/thumbnail"
+        android:layout_below="@id/title"
+        android:layout_marginTop="1dip"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/secondary_text"/>
+</RelativeLayout>

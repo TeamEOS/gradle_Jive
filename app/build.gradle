@@ -1,0 +1,95 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+    defaultConfig {
+        applicationId "dk.siman.jive"
+        minSdkVersion 21
+        targetSdkVersion 23
+        versionCode 5
+        versionName "1.5"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                appendVersionNameVersionCode(variant, defaultConfig)
+            }
+            debuggable false
+            jniDebuggable false
+            renderscriptDebuggable false
+        }
+        debug {
+            applicationIdSuffix ".debug"
+            OutputDirectory
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            applicationVariants.all { variant ->
+                appendVersionNameVersionCode(variant, defaultConfig)
+            }
+            debuggable true
+            jniDebuggable true
+            renderscriptDebuggable true
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+    lintOptions {
+        abortOnError true
+    }
+    productFlavors {
+    }
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.google.android.gms:play-services-cast:8.1.0'
+    compile 'com.google.android.support:wearable:1.2.0'
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:cardview-v7:23.0.1'
+    compile 'com.android.support:mediarouter-v7:23.0.1'
+    compile 'com.android.support:leanback-v17:23.0.1'
+    compile 'com.android.support:palette-v7:23.0.1'
+
+    compile project(":CastCompanionLibrary")
+    compile 'com.github.amlcurran.showcaseview:library:5.0.0'
+}
+
+def appendVersionNameVersionCode(variant, defaultConfig) {
+    variant.outputs.each { output ->
+        def file = output.outputFile
+        def fileName = defaultConfig.applicationId + "." + defaultConfig.versionName + "." + variant.name + ".apk"
+        String parent = file.parent
+        if( project.hasProperty('OUTPUT_DIR') && new File( (String)OUTPUT_DIR ).exists() ) {
+            parent = OUTPUT_DIR
+            output.outputFile = new File(parent, fileName)
+        } else {
+            output.outputFile = new File(file.parent, fileName)
+        }
+    }
+}

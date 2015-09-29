@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2014 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+<!-- Use the default receiver. To customize a styled media receiver, you can use
+     the css and images under <project-root>/docs/cast_styled_receiver -->
+    <string name="cast_application_id">CC1AD845</string>
+
+    <string name="app_name">Jive Music</string>
+
+    <string name="browse_genres">Genres</string>
+    <string name="browse_genre_subtitle">Songs by genre</string>
+    <string name="browse_musics_by_genre_subtitle">%1$s songs</string>
+    <string name="browse_albums">Albums</string>
+    <string name="browse_album_subtitle">Songs by album</string>
+    <string name="browse_musics_by_album_subtitle">%1$s</string>
+    <string name="browse_artists">Artists</string>
+    <string name="browse_artists_subtitle">Songs by artist</string>
+    <string name="browse_musics_by_artists_subtitle">%1$s</string>
+    <string name="browse_favorites">Favorites</string>
+    <string name="browse_favorite_subtitle">Songs by favorite</string>
+    <string name="browse_musics_by_favorite_subtitle">%1$s</string>
+
+    <string name="currently_playing_song">Song currently playing</string>
+    <string name="currently_playing_artist">Artist of currently playing song</string>
+    <string name="currently_playing_extra_info">Extra info for currently playing song</string>
+
+    <string name="drawer_allmusic_title">All Music</string>
+    <string name="drawer_albums_title">Albums</string>
+    <string name="drawer_artists_title">Artists</string>
+    <string name="drawer_favorites_title">Favorites</string>
+    <string name="drawer_genres_title">Genres</string>
+    <string name="drawer_settings_title">Settings</string>
+    <string name="drawer_about_title">About</string>
+
+    <string name="error_no_metadata">Unable to retrieve metadata.</string>
+    <string name="error_loading_media">Error Loading Media</string>
+
+    <string name="settings_general_category">General</string>
+    <string name="settings_equalizer_title">Equalizer</string>
+    <string name="settings_equalizer_summary">Fine tune your audio settings</string>
+    <string name="settings_inverted_title">Invert swipe</string>
+    <string name="settings_inverted_summary">Invert swipe left and right functions</string>
+
+    <string name="about_license_title">Open Source Licenses</string>
+    <string name="about_license_summary">License details for open-source software</string>
+
+    <string name="play_item">Play item</string>
+    <string name="play_pause">play or pause</string>
+    <string name="skip_next">skip to next</string>
+    <string name="skip_prev">skip to previous</string>
+    <string name="repeat">Repeat item</string>
+    <string name="touch_to_cast">Touch to Cast</string>
+
+    <string name="action_listen">Listen</string>
+    <string name="close_content_drawer">Close the main menu</string>
+    <string name="open_content_drawer">Open the main menu</string>
+    <string name="home_title">Home</string>
+    <string name="related_content_header">You may also like</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="background_image_switcher_str">Background imageswitcher for album art</string>
+    <string name="no_search_results">No search results.</string>
+    <string name="loading">Loading…</string>
+    <string name="media_route_menu_title">Play on…</string>
+    <string name="random_queue_title">Random music</string>
+    <string name="casting_to_device">Casting to %1$s</string>
+    <string name="drawer_header_background">Drawer background</string>
+
+    <string name="double_tab_exit_text">Do you want to close it?</string>
+
+    <string name="connection_temp_lost">Connection to the cast device is temporarily lost</string>
+    <string name="connection_recovered">Connection to the cast device is recovered</string>
+    <string name="connection_lost_retry">Connection to the cast device has been temporarily lost. Application is trying to recover connection, please try again later</string>
+    <string name="connection_lost">No connection to the cast device exist</string>
+    <string name="failed_to_perform_action">Sorry, ran into issues performing the task you wanted</string>
+    <string name="oops">Oops</string>
+</resources>

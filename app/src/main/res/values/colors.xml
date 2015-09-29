@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2014 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<resources>
+    <color name="tv_branding">#ff5722</color>
+    <color name="tv_branding_dark">#bf360c</color>
+    <color name="tv_branding_accent">#00B8D4</color>
+
+    <color name="bt_accent">#607d8b</color>
+    <color name="bt_accent_light">#9e9e9e</color>
+    <color name="bt_accent_dark">#727272</color>
+
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+
+    <color name="media_item_icon_playing">@color/bt_accent</color>
+    <color name="media_item_icon_not_playing">#ccc</color>
+    <color name="drawer_header_background">@color/bt_accent</color>
+    <color name="error_message_background">#ffff1600</color>
+    <color name="drawer_item_selected_background">#feee</color>
+    <color name="drawer_item_tint_color">#ff333333</color>
+    <color name="fullscreen_secondary_line_color">#E5CCCCCC</color>
+    <color name="fullscreen_line_color">#E5FFFFFF</color>
+    <color name="tv_search_button">#ff0097A7</color>
+    <color name="background_gradient_start">#000000</color>
+    <color name="background_gradient_end">#DDDDDD</color>
+    <color name="default_background">#0096a6</color>
+
+    <color name="genre">#666666</color>
+    <color name="year">#888888</color>
+    <color name="list_divider">#d9d9d9</color>
+    <color name="list_row_start_color">#ffffff</color>
+    <color name="list_row_end_color">#ffffff</color>
+    <color name="list_row_hover_start_color">#ebeef0</color>
+    <color name="list_row_hover_end_color">#ebeef0</color>
+</resources>
