@@ -46,6 +46,7 @@ import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 
 import dk.siman.jive.R;
+import dk.siman.jive.utils.CastHelper;
 import dk.siman.jive.utils.LogHelper;
 import dk.siman.jive.utils.PrefUtils;
 import dk.siman.jive.utils.ResourceHelper;
@@ -107,6 +108,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
         @Override
         public void onCastDeviceDetected(final MediaRouter.RouteInfo info) {
+            CastHelper.checkCastDevice(info);
             // FTU stands for First Time Use:
             if (!PrefUtils.isFtuShown(ActionBarCastActivity.this)) {
                 // If user is seeing the cast button for the first time, we will
