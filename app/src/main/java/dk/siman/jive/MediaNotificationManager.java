@@ -37,6 +37,7 @@ import android.support.v7.graphics.Palette;
 import dk.siman.jive.ui.AlbumPlayerActivity;
 import dk.siman.jive.utils.ArtHelper;
 import dk.siman.jive.utils.LogHelper;
+import dk.siman.jive.utils.PaletteHelper;
 import dk.siman.jive.utils.ResourceHelper;
 
 /**
@@ -287,8 +288,6 @@ public class MediaNotificationManager extends BroadcastReceiver {
             bitmap = ArtHelper.scaleBitmap(bitmap);
         }
 
-        LogHelper.d(TAG, "Uses mNotificationColor =", mNotificationColor);
-
         notificationBuilder
                 .setSmallIcon(R.drawable.ic_notification)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
@@ -404,44 +403,13 @@ public class MediaNotificationManager extends BroadcastReceiver {
 
     private void generateNotificationColor(Bitmap artBitmap) {
         LogHelper.d(TAG, "generateNotificationColor=", artBitmap);
-        if (artBitmap != null) {
-            Palette.Builder pBuilder = new Palette.Builder(artBitmap);
-            setNotificationColor(pBuilder);
+        int p = PaletteHelper.generatePalette(artBitmap);
+
+        if (p != 0) {
+            mNotificationColor = p;
         } else {
             mNotificationColor = ResourceHelper.getThemeColor(mService,
                     android.R.attr.colorPrimary, Color.DKGRAY);
-        }
-    }
-
-    private void setNotificationColor(Palette.Builder palette) {
-        LogHelper.d(TAG, "setNotificationColor=", palette);
-        vibrantColor = 0;
-        mutedColor = 0;
-        if (palette == null) {
-            return;
-        }
-
-        palette.maximumColorCount(paletteSamples);
-
-        vibrantColor = palette.generate().getVibrantColor(ResourceHelper.getThemeColor(mService,
-                android.R.attr.colorPrimary, Color.DKGRAY));
-        mutedColor = palette.generate().getMutedColor(ResourceHelper.getThemeColor(mService,
-                android.R.attr.colorPrimary, Color.DKGRAY));
-
-        LogHelper.d(TAG, "vibrantColor=", vibrantColor);
-        LogHelper.d(TAG, "mutedColor=", mutedColor);
-        LogHelper.d(TAG, "defaultColor=", Color.DKGRAY);
-
-        if (vibrantColor != Color.DKGRAY) {
-            mNotificationColor = vibrantColor;
-            LogHelper.d(TAG, "mNotificationColor, vibrantColor=", mNotificationColor);
-        } else if (mutedColor != Color.DKGRAY) {
-            mNotificationColor = mutedColor;
-            LogHelper.d(TAG, "mNotificationColor, mutedColor=", mNotificationColor);
-        } else {
-            mNotificationColor = ResourceHelper.getThemeColor(mService,
-                    android.R.attr.colorPrimary, Color.DKGRAY);
-            LogHelper.d(TAG, "mNotificationColor, default=", mNotificationColor);
         }
     }
 }
