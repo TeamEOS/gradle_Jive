@@ -33,6 +33,9 @@
     <string name="browse_favorites">Favorites</string>
     <string name="browse_favorite_subtitle">Songs by favorite</string>
     <string name="browse_musics_by_favorite_subtitle">%1$s</string>
+    <string name="browse_all">All Music</string>
+    <string name="browse_all_subtitle">Songs by alphabet</string>
+    <string name="browse_musics_by_all_subtitle">%1$s</string>
 
     <string name="currently_playing_song">Song currently playing</string>
     <string name="currently_playing_artist">Artist of currently playing song</string>

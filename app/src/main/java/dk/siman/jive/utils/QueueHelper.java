@@ -30,6 +30,7 @@ import dk.siman.jive.VoiceSearchParams;
 import dk.siman.jive.model.MusicProvider;
 
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALBUM;
+import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALPHABET;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ARTIST;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_FAVORITE;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
@@ -72,6 +73,8 @@ public class QueueHelper {
             case MEDIA_ID_MUSICS_BY_ALBUM:
                 tracks = musicProvider.getMusicsByAlbum(categoryValue);
                 break;
+            case MEDIA_ID_MUSICS_BY_ALPHABET:
+                return convertToAllQueue(musicProvider, hierarchy[0], hierarchy[1]);
             case MEDIA_ID_MUSICS_BY_FAVORITE:
                 return convertToFavoriteQueue(musicProvider, hierarchy[0], hierarchy[1]);
         }
@@ -91,9 +94,6 @@ public class QueueHelper {
 
         for (String favorite : musicProvider.getFavorites()) {
             for (MediaMetadata track : musicProvider.getMusicsByFavorite(favorite)) {
-
-                // We create a hierarchy-aware mediaID, so we know what the queue is about by looking
-                // at the QueueItem media IDs.
                 String hierarchyAwareMediaID = MediaIDHelper.createMediaID(
                         track.getDescription().getMediaId(), categories);
 
@@ -101,15 +101,13 @@ public class QueueHelper {
                         .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
                         .build();
 
-                // We don't expect queues to change after created, so we use the item index as the
-                // queueId. Any other number unique in the queue would work.
                 MediaSession.QueueItem item = new MediaSession.QueueItem(
                         trackCopy.getDescription(), count++);
                 queue.add(item);
             }
         }
 
-        if (queue != null) {
+        if (!queue.isEmpty()) {
             Collections.sort(queue, new Comparator<MediaSession.QueueItem>() {
                 @Override
                 public int compare(MediaSession.QueueItem lhs, MediaSession.QueueItem rhs) {
@@ -119,7 +117,37 @@ public class QueueHelper {
         }
 
         return queue;
+    }
 
+    private static List<MediaSession.QueueItem> convertToAllQueue(MusicProvider musicProvider, String... categories) {
+        List<MediaSession.QueueItem> queue = new ArrayList<>();
+        int count = 0;
+
+        for (String music : musicProvider.getAllMusic()) {
+            for (MediaMetadata track : musicProvider.getMusicsByAlphabet(music)) {
+                String hierarchyAwareMediaID = MediaIDHelper.createMediaID(
+                        track.getDescription().getMediaId(), categories);
+
+                MediaMetadata trackCopy = new MediaMetadata.Builder(track)
+                        .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
+                        .build();
+
+                MediaSession.QueueItem item = new MediaSession.QueueItem(
+                        trackCopy.getDescription(), count++);
+                queue.add(item);
+            }
+        }
+
+        if (!queue.isEmpty()) {
+            Collections.sort(queue, new Comparator<MediaSession.QueueItem>() {
+                @Override
+                public int compare(MediaSession.QueueItem lhs, MediaSession.QueueItem rhs) {
+                    return lhs.toString().compareToIgnoreCase(rhs.toString());
+                }
+            });
+        }
+
+        return queue;
     }
 
     public static List<MediaSession.QueueItem> getPlayingQueueFromSearch(String query,

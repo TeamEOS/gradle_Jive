@@ -60,6 +60,7 @@ import dk.siman.jive.utils.QueueHelper;
 import dk.siman.jive.utils.WearHelper;
 
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALBUM;
+import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALPHABET;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ARTIST;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_FAVORITE;
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_GENRE;
@@ -536,6 +537,29 @@ public class MusicService extends MediaBrowserService implements Playback.Callba
                                 .build(), MediaBrowser.MediaItem.FLAG_BROWSABLE
                 );
                 mediaItems.add(item);
+            }
+
+            Collections.sort(mediaItems, new Comparator<MediaItem>() {
+                @Override
+                public int compare(MediaItem lhs, MediaItem rhs) {
+                    return lhs.toString().compareToIgnoreCase(rhs.toString());
+                }
+            });
+
+        } else if (MEDIA_ID_MUSICS_BY_ALPHABET.equals(parentMediaId)) {
+            LogHelper.d(TAG, "OnLoadChildren.ALPHABET");
+            for (String mediaId : mMusicProvider.getAllMusic()) {
+                for (MediaMetadata track : mMusicProvider.getMusicsByAlphabet(mediaId)) {
+                    String hierarchyAwareMediaID = MediaIDHelper.createMediaID(
+                            track.getDescription().getMediaId(), MEDIA_ID_MUSICS_BY_ALPHABET, track.toString());
+                    MediaMetadata trackCopy = new MediaMetadata.Builder(track)
+                            .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
+                            .build();
+                    MediaBrowser.MediaItem bItem = new MediaBrowser.MediaItem(
+                            trackCopy.getDescription(), MediaItem.FLAG_PLAYABLE);
+
+                    mediaItems.add(bItem);
+                }
             }
 
             Collections.sort(mediaItems, new Comparator<MediaItem>() {

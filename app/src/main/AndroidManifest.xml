@@ -83,6 +83,11 @@
             android:label="@string/browse_artists">
         </activity>
 
+        <!-- Main activity for music browsing on phone per alphabet -->
+        <activity
+            android:name=".ui.AllPlayerActivity"
+            android:label="@string/browse_all">
+        </activity>
 
         <!-- Proxy activity that opens either the NowPlaying TV or the mobile UI, depending on
         the current environment -->

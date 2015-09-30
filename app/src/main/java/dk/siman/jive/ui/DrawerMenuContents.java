@@ -32,8 +32,8 @@ class DrawerMenuContents {
     private final Class[] activities;
 
     public DrawerMenuContents(Context ctx) {
-        activities = new Class[6];
-        items = new ArrayList<>(6);
+        activities = new Class[7];
+        items = new ArrayList<>(7);
 
         activities[0] = AlbumPlayerActivity.class;
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_albums_title),
@@ -51,11 +51,15 @@ class DrawerMenuContents {
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_genres_title),
                 R.drawable.ic_allmusic_black_24dp));
 
-        activities[4] = SettingsActivity.class;
+        activities[4] = AllPlayerActivity.class;
+        items.add(populateDrawerItem(ctx.getString(R.string.drawer_allmusic_title),
+                R.drawable.ic_allmusic_black_24dp));
+
+        activities[5] = SettingsActivity.class;
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_settings_title),
                 R.drawable.ic_setting_dark));
 
-        activities[5] = AboutActivity.class;
+        activities[6] = AboutActivity.class;
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_about_title),
                 R.drawable.ic_about_outline_black_24dp));
     }

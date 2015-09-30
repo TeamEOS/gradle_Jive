@@ -25,6 +25,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
 
+import com.google.common.collect.Ordering;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -47,11 +49,12 @@ public class MusicProvider {
     private static final String TAG = LogHelper.makeLogTag(MusicProvider.class);
 
     // Categorized caches for music track data:
-    private final ConcurrentMap<String, MutableMediaMetadata> mMusicListById;
+    private ConcurrentMap<String, MutableMediaMetadata> mMusicListById;
     private ConcurrentMap<String, List<MediaMetadata>> mMusicListByFavorite;
     private ConcurrentMap<String, List<MediaMetadata>> mMusicListByGenre;
     private ConcurrentMap<String, List<MediaMetadata>> mMusicListByArtist;
     private ConcurrentMap<String, List<MediaMetadata>> mMusicListByAlbum;
+    private ConcurrentMap<String, List<MediaMetadata>> mMusicListByAlphabet;
 
     private final MusicDBDataSource datasource;
 
@@ -73,6 +76,7 @@ public class MusicProvider {
         mMusicListByGenre = new ConcurrentHashMap<>();
         mMusicListByArtist = new ConcurrentHashMap<>();
         mMusicListByAlbum = new ConcurrentHashMap<>();
+        mMusicListByAlphabet = new ConcurrentHashMap<>();
         mMusicListById = new ConcurrentHashMap<>();
         mContentResolver = cr;
         mContext = cn;
@@ -116,7 +120,6 @@ public class MusicProvider {
         return mMusicListByArtist.keySet();
     }
 
-
     /**
      * Get an iterator over the list of albums
      *
@@ -129,6 +132,17 @@ public class MusicProvider {
         return mMusicListByAlbum.keySet();
     }
 
+    /**
+     * Get an iterator over the list of music
+     *
+     * @return genres
+     */
+    public Iterable<String> getAllMusic() {
+        if (mCurrentState != State.INITIALIZED) {
+            return Collections.emptyList();
+        }
+        return mMusicListByAlphabet.keySet();
+    }
 
     public Uri getAlbumArtUri(String mediaid) {
         for (MediaMetadata track : getMusicsByAlbum(mediaid)) {
@@ -185,6 +199,17 @@ public class MusicProvider {
             return Collections.emptyList();
         }
         return mMusicListByAlbum.get(album);
+    }
+
+    /**
+     * Get music tracks of the given album
+     *
+     */
+    public Iterable<MediaMetadata> getMusicsByAlphabet(String album) {
+        if (mCurrentState != State.INITIALIZED || !mMusicListByAlphabet.containsKey(album)) {
+            return Collections.emptyList();
+        }
+        return mMusicListByAlphabet.get(album);
     }
 
     /**
@@ -260,6 +285,7 @@ public class MusicProvider {
         }
 
         buildListsByFavorites();
+        buildListByAlphabet();
     }
 
     public void setFavorite(String musicId, boolean favorite) {
@@ -392,6 +418,23 @@ public class MusicProvider {
         mMusicListByAlbum = newMusicListByAlbum;
     }
 
+    private synchronized void buildListByAlphabet() {
+        ConcurrentMap<String, List<MediaMetadata>> newMusicListByAlbum = new ConcurrentHashMap<>();
+
+        for (MutableMediaMetadata m : mMusicListById.values()) {
+            String music = m.metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+            List<MediaMetadata> list = newMusicListByAlbum.get(music);
+            if (list == null) {
+                list = new ArrayList<>();
+                newMusicListByAlbum.put(music, list);
+            }
+            list.add(m.metadata);
+
+            Collections.sort(list, Ordering.usingToString());
+        }
+        mMusicListByAlphabet = newMusicListByAlbum;
+    }
+
     private synchronized void retrieveMedia() {
         try {
             if (mCurrentState == State.NON_INITIALIZED) {
@@ -491,6 +534,7 @@ public class MusicProvider {
                 buildListsByArtist();
                 buildListByAlbum();
                 buildListsByFavorites();
+                buildListByAlphabet();
 
                 LogHelper.i(TAG, "Done querying media. MusicProvider is ready.");
                 mCurrentState = State.INITIALIZED;
