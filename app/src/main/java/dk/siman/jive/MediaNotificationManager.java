@@ -129,6 +129,7 @@ public class MediaNotificationManager extends BroadcastReceiver {
             // The notification must be updated after setting started to true
             Notification notification = createNotification();
             if (notification != null) {
+                LogHelper.d(TAG, "registerCallback");
                 mController.registerCallback(mCb);
                 IntentFilter filter = new IntentFilter();
                 filter.addAction(ACTION_NEXT);

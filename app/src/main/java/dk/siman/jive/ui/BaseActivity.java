@@ -136,6 +136,7 @@ public abstract class BaseActivity extends ActionBarCastActivity implements Medi
     private void connectToSession(MediaSession.Token token) {
         MediaController mediaController = new MediaController(this, token);
         setMediaController(mediaController);
+        LogHelper.d(TAG, "registerCallback");
         mediaController.registerCallback(mMediaControllerCallback);
 
         if (shouldShowControls()) {

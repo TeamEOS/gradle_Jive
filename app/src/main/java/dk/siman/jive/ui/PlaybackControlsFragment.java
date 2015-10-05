@@ -169,6 +169,7 @@ public class PlaybackControlsFragment extends Fragment {
         if (controller != null) {
             onMetadataChanged(controller.getMetadata());
             onPlaybackStateChanged(controller.getPlaybackState());
+            LogHelper.d(TAG, "registerCallback");
             controller.registerCallback(mCallback);
         }
     }

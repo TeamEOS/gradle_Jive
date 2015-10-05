@@ -27,6 +27,7 @@ android {
     }
     buildTypes {
         release {
+            multiDexEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
@@ -38,7 +39,7 @@ android {
         }
         debug {
             applicationIdSuffix ".debug"
-            OutputDirectory
+            multiDexEnabled true
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             applicationVariants.all { variant ->
@@ -75,7 +76,7 @@ dependencies {
     compile 'com.android.support:mediarouter-v7:23.0.1'
     compile 'com.android.support:leanback-v17:23.0.1'
     compile 'com.android.support:palette-v7:23.0.1'
-    compile 'com.google.guava:guava:14.0.1'
+    compile 'com.google.guava:guava:19.0-rc2'
 
     compile project(":CastCompanionLibrary")
     compile 'com.github.amlcurran.showcaseview:library:5.0.0'

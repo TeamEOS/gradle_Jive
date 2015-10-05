@@ -214,26 +214,17 @@ public class AlbumBrowserDetailedFragment extends Fragment {
 
     @Override
     public void onStop() {
+        LogHelper.d(TAG, "onStop");
         super.onStop();
         MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
         if (mediaBrowser != null && mediaBrowser.isConnected() && mMediaId != null) {
             mediaBrowser.unsubscribe(mMediaId);
         }
         if (getActivity().getMediaController() != null) {
+            LogHelper.d(TAG, "unregisterCallback");
             getActivity().getMediaController().unregisterCallback(mMediaControllerCallback);
         }
         this.getActivity().unregisterReceiver(mConnectivityChangeReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        LogHelper.d(TAG, "onResume");
-
-        MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
-        if (mediaBrowser.isConnected()) {
-            onConnected();
-        }
     }
 
     @Override
@@ -285,6 +276,7 @@ public class AlbumBrowserDetailedFragment extends Fragment {
 
         // Add MediaController callback so we can redraw the list when metadata changes:
         if (getActivity().getMediaController() != null) {
+            LogHelper.d(TAG, "registerCallback");
             getActivity().getMediaController().registerCallback(mMediaControllerCallback);
         }
     }
@@ -325,7 +317,7 @@ public class AlbumBrowserDetailedFragment extends Fragment {
                                     mMediaFragmentListener.setToolbarTitle(item.getDescription().getTitle());
 
                                     Uri artUri = item.getDescription().getIconUri();
-                                    Bitmap bitmap = ArtHelper.getAlbumArt(getActivity().getApplicationContext(), artUri);
+                                    Bitmap bitmap = ArtHelper.getScaleBitmap(getActivity().getApplicationContext(), artUri);
                                     if (bitmap == null) {
                                         bitmap = BitmapFactory.decodeResource(getActivity().getResources(),
                                                 R.drawable.ic_default_art);

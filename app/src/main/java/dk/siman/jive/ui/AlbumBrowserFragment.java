@@ -193,6 +193,7 @@ public class AlbumBrowserFragment extends Fragment {
 
     @Override
     public void onStart() {
+        LogHelper.d(TAG, "onStart");
         super.onStart();
 
         // fetch browsing information to fill the listview:
@@ -213,21 +214,17 @@ public class AlbumBrowserFragment extends Fragment {
 
     @Override
     public void onStop() {
+        LogHelper.d(TAG, "onStop");
         super.onStop();
         MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
         if (mediaBrowser != null && mediaBrowser.isConnected() && mMediaId != null) {
             mediaBrowser.unsubscribe(mMediaId);
         }
         if (getActivity().getMediaController() != null) {
+            LogHelper.d(TAG, "unregisterCallback");
             getActivity().getMediaController().unregisterCallback(mMediaControllerCallback);
         }
         this.getActivity().unregisterReceiver(mConnectivityChangeReceiver);
-    }
-
-    @Override
-    public void onResume() {
-        LogHelper.d(TAG, "onResume");
-        super.onResume();
     }
 
     @Override
@@ -237,6 +234,7 @@ public class AlbumBrowserFragment extends Fragment {
     }
 
     public String getMediaId() {
+        LogHelper.d(TAG, "getMediaId");
         Bundle args = getArguments();
         if (args != null) {
             return args.getString(ARG_MEDIA_ID);
@@ -245,6 +243,7 @@ public class AlbumBrowserFragment extends Fragment {
     }
 
     private String getParentId() {
+        LogHelper.d(TAG, "getParentId");
         mMediaId = getMediaId();
         if (mMediaId == null) {
             mMediaId = mMediaFragmentListener.getMediaBrowser().getRoot();
@@ -337,6 +336,7 @@ public class AlbumBrowserFragment extends Fragment {
 
         // Add MediaController callback so we can redraw the list when metadata changes:
         if (getActivity().getMediaController() != null) {
+            LogHelper.d(TAG, "registerCallback");
             getActivity().getMediaController().registerCallback(mMediaControllerCallback);
         }
     }

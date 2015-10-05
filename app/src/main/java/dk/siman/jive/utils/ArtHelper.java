@@ -35,11 +35,14 @@ public class ArtHelper {
     // serialize the MediaDescription, you may get FAILED BINDER TRANSACTION errors.
     private static final int MAX_ART_WIDTH = 800;  // pixels
     private static final int MAX_ART_HEIGHT = 480;  // pixels
-    private static final int MAX_ART_WIDTH_ICON = 320;  // pixels, 128 was default
-    private static final int MAX_ART_HEIGHT_ICON = 320;  // pixels, 128 was default
+    private static final int MAX_ART_WIDTH_ICON = 170;  // pixels, 128 was default
+    private static final int MAX_ART_HEIGHT_ICON = 170;  // pixels, 128 was default
 
     public static Bitmap getAlbumArt(Context context, Uri uri) {
         Bitmap bm = null;
+        if (uri == null) {
+            return null;
+        }
         try {
             ParcelFileDescriptor pfd = context.getContentResolver()
                     .openFileDescriptor(uri, "r");
@@ -50,16 +53,17 @@ public class ArtHelper {
         } catch (FileNotFoundException e) {
             //LogHelper.i(TAG, "Song does not contain album art");
         } catch (NullPointerException e) {
-            LogHelper.i(TAG, "NullPointerException: " + e);
+            //LogHelper.i(TAG, "NullPointerException: " + e);
         }
 
         return bm;
     }
 
-    public static Bitmap getScaleBitmapIcon(Context context, Uri uri) {
-        int maxWidth = MAX_ART_WIDTH_ICON;
-        int maxHeight = MAX_ART_HEIGHT_ICON;
+    public static Bitmap getScaleBitmap(Context context, Uri uri) {
 
+        if (uri == null) {
+            return null;
+        }
         Bitmap bm = null;
         try {
             ParcelFileDescriptor pfd = context.getContentResolver()
@@ -71,34 +75,56 @@ public class ArtHelper {
         } catch (FileNotFoundException e) {
             //LogHelper.i(TAG, "Song does not contain album art");
         } catch (NullPointerException e) {
-            LogHelper.i(TAG, "NullPointerException: " + e);
+            //LogHelper.i(TAG, "NullPointerException: " + e);
         }
 
         if (bm == null)
             return null;
 
         double scaleFactor = Math.min(
-                ((double) maxWidth)/bm.getWidth(), ((double) maxHeight)/bm.getHeight());
+                ((double) MAX_ART_WIDTH)/bm.getWidth(), ((double) MAX_ART_HEIGHT)/bm.getHeight());
+        return Bitmap.createScaledBitmap(bm,
+                (int) (bm.getWidth() * scaleFactor), (int) (bm.getHeight() * scaleFactor), false);
+    }
+
+    public static Bitmap getScaleBitmapIcon(Context context, Uri uri) {
+
+        if (uri == null) {
+            return null;
+        }
+        Bitmap bm = null;
+        try {
+            ParcelFileDescriptor pfd = context.getContentResolver()
+                    .openFileDescriptor(uri, "r");
+            if (pfd != null) {
+                FileDescriptor fd = pfd.getFileDescriptor();
+                bm = BitmapFactory.decodeFileDescriptor(fd);
+            }
+        } catch (FileNotFoundException e) {
+            //LogHelper.i(TAG, "Song does not contain album art");
+        } catch (NullPointerException e) {
+            //LogHelper.i(TAG, "NullPointerException: " + e);
+        }
+
+        if (bm == null)
+            return null;
+
+        double scaleFactor = Math.min(
+                ((double) MAX_ART_WIDTH_ICON)/bm.getWidth(), ((double) MAX_ART_HEIGHT_ICON)/bm.getHeight());
         return Bitmap.createScaledBitmap(bm,
                 (int) (bm.getWidth() * scaleFactor), (int) (bm.getHeight() * scaleFactor), false);
     }
 
     public static Bitmap scaleBitmapIcon(Bitmap src) {
-        int maxWidth = MAX_ART_WIDTH_ICON;
-        int maxHeight = MAX_ART_HEIGHT_ICON;
-
         double scaleFactor = Math.min(
-                ((double) maxWidth)/src.getWidth(), ((double) maxHeight)/src.getHeight());
+                ((double) MAX_ART_WIDTH_ICON)/src.getWidth(), ((double) MAX_ART_HEIGHT_ICON)/src.getHeight());
         return Bitmap.createScaledBitmap(src,
                 (int) (src.getWidth() * scaleFactor), (int) (src.getHeight() * scaleFactor), false);
     }
 
     public static Bitmap scaleBitmap(Bitmap src) {
-        int maxWidth = MAX_ART_WIDTH;
-        int maxHeight = MAX_ART_HEIGHT;
-
         double scaleFactor = Math.min(
-                ((double) maxWidth)/src.getWidth(), ((double) maxHeight)/src.getHeight());
+                ((double) MAX_ART_WIDTH)/src.getWidth(), ((double) MAX_ART_HEIGHT)/src.getHeight());
         return Bitmap.createScaledBitmap(src,
                 (int) (src.getWidth() * scaleFactor), (int) (src.getHeight() * scaleFactor), false);
     }
