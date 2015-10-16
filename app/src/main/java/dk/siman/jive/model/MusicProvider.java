@@ -16,14 +16,17 @@
 
 package dk.siman.jive.model;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.MediaMetadata;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.provider.MediaStore;
+import android.support.v4.content.ContextCompat;
 
 import com.google.common.collect.Ordering;
 
@@ -323,6 +326,15 @@ public class MusicProvider {
         if (mCurrentState == State.INITIALIZED) {
             // Nothing to do, execute callback immediately
             callback.onMusicCatalogReady(true);
+            return;
+        }
+
+        // Verify that all required storage permissions have been granted.
+        if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)) {
+            // Storage permissions have not been granted.
             return;
         }
 

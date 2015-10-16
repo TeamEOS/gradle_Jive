@@ -92,4 +92,8 @@
     <string name="connection_lost">No connection to the cast device exist</string>
     <string name="failed_to_perform_action">Sorry, ran into issues performing the task you wanted</string>
     <string name="oops">Oops</string>
+
+    <string name="permissions_not_granted">Permissions were not granted</string>
+    <string name="permission_storage_rationale">Storage permissions are needed to use the Music</string>
+    <string name="permision_available_storage">Storage Permissions have been granted</string>
 </resources>

@@ -24,7 +24,7 @@
     android:elevation="16dp"
     android:fitsSystemWindows="true"
     android:clickable="true"
-    custom:insetForeground="#4000">
+    custom:insertForeground="#4000">
     <ImageView
         android:contentDescription="@string/drawer_header_background"
         android:id="@+id/drawer_header"

@@ -20,6 +20,7 @@ package dk.siman.jive.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
@@ -57,6 +58,25 @@ public class ArtHelper {
         }
 
         return bm;
+    }
+
+    public static boolean checkAlbumArt(Context context, Uri uri) {
+        if (uri == null) {
+            return false;
+        }
+        try {
+            ParcelFileDescriptor pfd = context.getContentResolver()
+                    .openFileDescriptor(uri, "r");
+            if (pfd != null) {
+                return true;
+            }
+        } catch (FileNotFoundException e) {
+            //LogHelper.i(TAG, "Song does not contain album art");
+        } catch (NullPointerException e) {
+            //LogHelper.i(TAG, "NullPointerException: " + e);
+        }
+
+        return false;
     }
 
     public static Bitmap getScaleBitmap(Context context, Uri uri) {

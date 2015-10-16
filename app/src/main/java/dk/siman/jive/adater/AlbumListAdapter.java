@@ -35,11 +35,10 @@ public class AlbumListAdapter extends BaseAdapter {
 
     private static final String TAG = LogHelper.makeLogTag(AlbumListAdapter.class);
     private Activity activity;
-    private LayoutInflater	inflater;
+    private LayoutInflater inflater;
     public ImageManager imageManager;
     private String parentId;
     private ViewHolder holder;
-
     private List<MediaBrowser.MediaItem> musicItems;
 
     static class ViewHolder {

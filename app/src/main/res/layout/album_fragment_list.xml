@@ -49,6 +49,8 @@
         android:layout_alignParentBottom="true"
         android:layout_below="@id/playback_error"
         android:listSelector="@drawable/list_row_selector"
+        android:scrollingCache="false"
+        android:animationCache="false"
         android:background="?android:selectableItemBackgroundBorderless">
     </ListView>
 </RelativeLayout>

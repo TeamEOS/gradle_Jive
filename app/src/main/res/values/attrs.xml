@@ -16,6 +16,6 @@
   -->
 <resources>
     <declare-styleable name="ScrimInsetsView">
-        <attr name="insetForeground" format="reference|color" />
+        <attr name="insertForeground" format="reference|color" />
     </declare-styleable>
 </resources>

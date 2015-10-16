@@ -228,6 +228,17 @@ public class AlbumBrowserDetailedFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        LogHelper.d(TAG, "onResume");
+
+        MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
+        if (mediaBrowser.isConnected()) {
+            onConnected();
+        }
+    }
+
+    @Override
     public void onDetach() {
         super.onDetach();
         mMediaFragmentListener = null;

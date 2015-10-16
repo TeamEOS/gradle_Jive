@@ -572,10 +572,9 @@ public class MusicService extends MediaBrowserService implements Playback.Callba
         } else if (MEDIA_ID_MUSICS_BY_ALBUM.equals(parentMediaId)) {
             LogHelper.d(TAG, "OnLoadChildren.ALBUMS");
             for (String albums : mMusicProvider.getAlbums()) {
-                Uri iconUri = mMusicProvider.getAlbumArtUri(albums);
                 MediaBrowser.MediaItem item = null;
                 for (MediaMetadata track : mMusicProvider.getMusicsByAlbum(albums)) {
-
+                    Uri iconUri = track.getDescription().getIconUri();
                     item = new MediaBrowser.MediaItem(
                             new MediaDescription.Builder()
                                     .setMediaId(createBrowseCategoryMediaID(MEDIA_ID_MUSICS_BY_ALBUM, albums))
@@ -636,7 +635,6 @@ public class MusicService extends MediaBrowserService implements Playback.Callba
             LogHelper.d(TAG, "OnLoadChildren.SONGS_BY_ALBUM  album=", album);
 
             for (MediaMetadata track : mMusicProvider.getMusicsByAlbum(album)) {
-                Long trackNo = track.getLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER);
                 // Since mediaMetadata fields are immutable, we need to create a copy, so we
                 // can set a hierarchy-aware mediaID. We will need to know the media hierarchy
                 // when we get a onPlayFromMusicID call, so we can create the proper queue based
@@ -645,7 +643,6 @@ public class MusicService extends MediaBrowserService implements Playback.Callba
                         track.getDescription().getMediaId(), MEDIA_ID_MUSICS_BY_ALBUM, album);
                 MediaMetadata trackCopy = new MediaMetadata.Builder(track)
                         .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, hierarchyAwareMediaID)
-                        .putLong(MediaMetadata.METADATA_KEY_TRACK_NUMBER, trackNo)
                         .build();
 
                 MediaBrowser.MediaItem bItem = new MediaBrowser.MediaItem(

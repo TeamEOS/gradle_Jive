@@ -15,6 +15,7 @@
  */
 package dk.siman.jive.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
@@ -22,12 +23,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.media.MediaMetadata;
 import android.media.browse.MediaBrowser;
 import android.media.session.MediaController;
 import android.media.session.PlaybackState;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
+import android.support.v13.app.FragmentCompat;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +53,7 @@ import dk.siman.jive.model.MusicProvider;
 import dk.siman.jive.utils.LogHelper;
 import dk.siman.jive.utils.MediaIDHelper;
 import dk.siman.jive.utils.NetworkHelper;
+import dk.siman.jive.utils.PermissionHelper;
 
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALBUM;
 
@@ -77,6 +85,10 @@ public class AlbumBrowserFragment extends Fragment {
     private View rootView;
     private Context mContext;
 
+    private static final int REQUEST_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.READ_EXTERNAL_STORAGE};
+
     private final BroadcastReceiver mConnectivityChangeReceiver = new BroadcastReceiver() {
         private boolean oldOnline = false;
         @Override
@@ -90,7 +102,17 @@ public class AlbumBrowserFragment extends Fragment {
                     checkForUserVisibleErrors(false);
                     if (isOnline) {
                         if (mAlbumListAdapter != null) {
-                            mAlbumListAdapter.notifyDataSetChanged();
+                            // Verify that all required storage permissions have been granted.
+                            if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                                    != PackageManager.PERMISSION_GRANTED)
+                                    || (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
+                                    != PackageManager.PERMISSION_GRANTED)) {
+                                // Storage permissions have not been granted.
+                                requestStoragePermissions();
+                            } else {
+                                // Storage permissions have been granted. Save wallpaper.
+                                mAlbumListAdapter.notifyDataSetChanged();
+                            }
                         } else {
                             LogHelper.e(TAG, "onReceive, mAlbumListAdapteris null, recreating fragment");
                             recreateFragment();
@@ -176,14 +198,35 @@ public class AlbumBrowserFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LogHelper.d(TAG, "onCreate");
+
+        mContext = getActivity().getApplicationContext();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        LogHelper.d(TAG, "onCreateView");
-        mContext = getActivity().getApplicationContext();
-        initListAdapter(container);
+        LogHelper.d(TAG, "fragment.onCreateView");
+
+        if (container == null) {
+            LogHelper.e(TAG, "initListAdapter, container is null, recreating fragment");
+            recreateFragment();
+        }
+
+        rootView = inflater.inflate(R.layout.album_fragment_list, container, false);
+        listView = (ListView) rootView.findViewById(R.id.list_view);
+        mAlbumListAdapter = new AlbumListAdapter(getActivity(), musicList, getParentId());
+
+        listView.setAdapter(mAlbumListAdapter);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //checkForUserVisibleErrors(false);
+                MediaBrowser.MediaItem item = mAlbumListAdapter.getItem(position);
+                mMediaFragmentListener.onMediaItemSelected(item);
+            }
+        });
+
 
         mErrorView = rootView.findViewById(R.id.playback_error);
         mErrorMessage = (TextView) mErrorView.findViewById(R.id.error_message);
@@ -196,16 +239,7 @@ public class AlbumBrowserFragment extends Fragment {
         LogHelper.d(TAG, "onStart");
         super.onStart();
 
-        // fetch browsing information to fill the listview:
-        MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
-        mMusicProvider = new MusicProvider(getActivity().getContentResolver(), getActivity().getApplicationContext());
-
-        LogHelper.d(TAG, "onStart, mediaId=", mMediaId,
-                "  onConnected=" + mediaBrowser.isConnected());
-
-        if (mediaBrowser.isConnected()) {
-            onConnected();
-        }
+        initOnConnected();
 
         // Registers BroadcastReceiver to track network connection changes.
         this.getActivity().registerReceiver(mConnectivityChangeReceiver,
@@ -225,6 +259,12 @@ public class AlbumBrowserFragment extends Fragment {
             getActivity().getMediaController().unregisterCallback(mMediaControllerCallback);
         }
         this.getActivity().unregisterReceiver(mConnectivityChangeReceiver);
+    }
+
+    @Override
+    public void onResume() {
+        LogHelper.d(TAG, "onResume");
+        super.onResume();
     }
 
     @Override
@@ -264,42 +304,6 @@ public class AlbumBrowserFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.commitAllowingStateLoss();
     }
-
-    private void initListAdapter(ViewGroup container) {
-
-        LogHelper.d(TAG, "initListAdapter: ", container);
-
-        LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        if (container == null) {
-            LogHelper.e(TAG, "initListAdapter, container is null, recreating fragment");
-            recreateFragment();
-        }
-
-        if (mAlbumListAdapter == null) {
-            mAlbumListAdapter = new AlbumListAdapter(getActivity(), musicList, getParentId());
-        }
-
-        if (rootView == null) {
-            rootView = inflater.inflate(R.layout.album_fragment_list, container, false);
-        }
-
-        listView = (ListView) rootView.findViewById(R.id.list_view);
-        listView.setSmoothScrollbarEnabled(true);
-        listView.setAnimationCacheEnabled(false);
-        listView.setScrollingCacheEnabled(false);
-        listView.setAdapter(mAlbumListAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                checkForUserVisibleErrors(false);
-                MediaBrowser.MediaItem item = mAlbumListAdapter.getItem(position);
-                mMediaFragmentListener.onMediaItemSelected(item);
-            }
-        });
-    }
-
 
     public void setMediaId(String mediaId) {
         Bundle args = new Bundle(1);
@@ -398,7 +402,6 @@ public class AlbumBrowserFragment extends Fragment {
                                 ". Looking for ", mMediaId);
 
                         for (MediaBrowser.MediaItem item: children) {
-                            LogHelper.d(TAG, "child ", item.getMediaId());
                             if (item.getMediaId().equals(mMediaId)) {
                                 if (mMediaFragmentListener != null) {
                                     mMediaFragmentListener.setToolbarTitle(item.getDescription().getTitle());
@@ -456,6 +459,82 @@ public class AlbumBrowserFragment extends Fragment {
     public interface MediaFragmentListener extends MediaBrowserProvider {
         void onMediaItemSelected(MediaBrowser.MediaItem item);
         void setToolbarTitle(CharSequence title);
+    }
+
+    /**
+     * Requests the Storage permissions.
+     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
+     * permission, otherwise it is requested directly.
+     */
+    private void requestStoragePermissions() {
+
+        LogHelper.d(TAG, "requestStoragePermissions");
+
+        if ((FragmentCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                || (FragmentCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE))) {
+
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example, if the request has been denied previously.
+
+            // Display a SnackBar with an explanation and a button to trigger the request.
+            Snackbar.make(rootView, R.string.permission_storage_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            FragmentCompat
+                                    .requestPermissions(AlbumBrowserFragment.this, PERMISSIONS_STORAGE,
+                                            REQUEST_STORAGE);
+                        }
+                    })
+                    .show();
+        } else {
+            // Storage permissions have not been granted yet. Request them directly.
+            FragmentCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_STORAGE);
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_STORAGE) {
+            LogHelper.d(TAG, "onRequestPermissionsResult");
+            if (PermissionHelper.verifyPermissions(grantResults)) {
+                Snackbar.make(rootView, R.string.permision_available_storage,
+                        Snackbar.LENGTH_LONG)
+                        .show();
+
+                initOnConnected();
+
+            } else {
+                Snackbar.make(rootView, R.string.permissions_not_granted,
+                        Snackbar.LENGTH_LONG)
+                        .show();
+            }
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void initOnConnected() {
+        LogHelper.d(TAG, "initOnConnected");
+        // fetch browsing information to fill the listview:
+        MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
+        mMusicProvider = new MusicProvider(getActivity().getContentResolver(), getActivity().getApplicationContext());
+
+        LogHelper.d(TAG, "onStart, mediaId=", mMediaId,
+                "  onConnected=" + mediaBrowser.isConnected());
+
+        if (mediaBrowser.isConnected()) {
+            onConnected();
+        }
     }
 
 }

@@ -51,7 +51,7 @@ public class AlbumPlayerActivity extends BaseActivity
      * while the {@link android.media.session.MediaController} is connecting.
      */
     public static final String EXTRA_CURRENT_MEDIA_DESCRIPTION =
-        "dk.siman.jive.CURRENT_MEDIA_DESCRIPTION";
+            "dk.siman.jive.CURRENT_MEDIA_DESCRIPTION";
 
     private Bundle mVoiceSearchParams;
 
@@ -118,10 +118,10 @@ public class AlbumPlayerActivity extends BaseActivity
     private void startFullScreenActivityIfNeeded(Intent intent) {
         if (intent != null && intent.getBooleanExtra(EXTRA_START_FULLSCREEN, false)) {
             Intent fullScreenIntent = new Intent(this, FullScreenPlayerActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                    Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                .putExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION,
-                    intent.getParcelableExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION));
+                    .setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .putExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION,
+                            intent.getParcelableExtra(EXTRA_CURRENT_MEDIA_DESCRIPTION));
             startActivity(fullScreenIntent);
         }
     }
@@ -132,10 +132,10 @@ public class AlbumPlayerActivity extends BaseActivity
         // (which contain the query details) in a parameter, so we can reuse it later, when the
         // MediaSession is connected.
         if (intent.getAction() != null
-            && intent.getAction().equals(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH)) {
+                && intent.getAction().equals(MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH)) {
             mVoiceSearchParams = intent.getExtras();
             LogHelper.d(TAG, "Starting from voice search query=",
-                mVoiceSearchParams.getString(SearchManager.QUERY));
+                    mVoiceSearchParams.getString(SearchManager.QUERY));
         } else {
             if (savedInstanceState != null) {
                 // If there is a saved media ID, use it

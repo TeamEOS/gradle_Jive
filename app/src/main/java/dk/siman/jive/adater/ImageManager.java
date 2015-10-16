@@ -17,6 +17,7 @@ package dk.siman.jive.adater;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -44,7 +45,7 @@ public class ImageManager {
 
     public ImageManager(Context context) {
         // Make background thread low priority, to avoid affecting UI performance
-        imageLoaderThread.setPriority(Thread.NORM_PRIORITY-1);
+        //imageLoaderThread.setPriority(Thread.NORM_PRIORITY-1);
 
         mContext = context;
 
@@ -89,25 +90,35 @@ public class ImageManager {
     }
 
     private Bitmap getBitmap(String url) {
+        Bitmap bitmap = null;
         String filename = String.valueOf(url.hashCode());
         File f = new File(cacheDir, filename);
         LogHelper.d(TAG, "getBitmap, url=", url, " , filename=", filename);
 
-        // Is the bitmap in our cache?
-        Bitmap bitmap = BitmapFactory.decodeFile(f.getPath());
-        if(bitmap != null) {
-            return bitmap;
+        Resources rsrc = mContext.getResources();
+        if (rsrc == null) {
+            LogHelper.d(TAG, "getBitmap.rsrc == null");
+            return null;
         }
 
-        LogHelper.d(TAG, "Is the bitmap in our cache=", bitmap, " ,", f);
+        // Is the bitmap in our cache?
+        if (f.exists()) {
+            bitmap = BitmapFactory.decodeFile(f.getPath());
+            if (bitmap != null) {
+                LogHelper.d(TAG, "Bitmap found in cache, name: ", f.getPath());
+                return bitmap;
+            }
+        }
 
         // Nope, have to download it
         try {
             if (url != null) {
                 bitmap = ArtHelper.getScaleBitmapIcon(mContext, Uri.parse(url));
+                if (bitmap == null) {
+                    return null;
+                }
             } else {
-                BitmapFactory.decodeResource(mContext.getResources(),
-                        R.drawable.ic_default_art);
+                return null;
             }
             // save bitmap to cache for later
             writeFile(bitmap, f);
@@ -183,6 +194,11 @@ public class ImageManager {
                         }
 
                         Bitmap bmp = getBitmap(imageToLoad.url);
+                        if (bmp == null) {
+                            bmp = BitmapFactory.decodeResource(mContext.getResources(),
+                                    R.drawable.ic_default_art);
+                        }
+
                         imageMap.put(imageToLoad.url, bmp);
                         Object tag = imageToLoad.imageView.getTag();
 

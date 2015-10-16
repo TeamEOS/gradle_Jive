@@ -59,7 +59,7 @@ public class ScrimInsetsRelativeLayout extends RelativeLayout {
         if (a == null) {
             return;
         }
-        mInsetForeground = a.getDrawable(R.styleable.ScrimInsetsView_insetForeground);
+        mInsetForeground = a.getDrawable(R.styleable.ScrimInsetsView_insertForeground);
         a.recycle();
 
         setWillNotDraw(true);
