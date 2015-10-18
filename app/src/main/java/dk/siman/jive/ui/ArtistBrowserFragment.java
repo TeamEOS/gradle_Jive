@@ -42,7 +42,6 @@ import java.util.List;
 import dk.siman.jive.R;
 import dk.siman.jive.utils.LogHelper;
 import dk.siman.jive.utils.MediaIDHelper;
-import dk.siman.jive.utils.NetworkHelper;
 
 /**
  * A Fragment that lists all the various browsable queues available
@@ -64,20 +63,12 @@ public class ArtistBrowserFragment extends Fragment {
     private View mErrorView;
     private TextView mErrorMessage;
     private final BroadcastReceiver mConnectivityChangeReceiver = new BroadcastReceiver() {
-        private boolean oldOnline = false;
         @Override
         public void onReceive(Context context, Intent intent) {
             // We don't care about network changes while this fragment is not associated
             // with a media ID (for example, while it is being initialized)
             if (mMediaId != null) {
-                boolean isOnline = NetworkHelper.isOnline(context);
-                if (isOnline != oldOnline) {
-                    oldOnline = isOnline;
-                    checkForUserVisibleErrors(false);
-                    if (isOnline) {
-                        mBrowserAdapter.notifyDataSetChanged();
-                    }
-                }
+                mBrowserAdapter.notifyDataSetChanged();
             }
         }
     };
@@ -266,8 +257,7 @@ public class ArtistBrowserFragment extends Fragment {
         }
         mErrorView.setVisibility(showError ? View.VISIBLE : View.GONE);
         LogHelper.d(TAG, "checkForUserVisibleErrors. forceError=", forceError,
-                " showError=", showError,
-                " isOnline=", NetworkHelper.isOnline(getActivity()));
+                " showError=", showError);
     }
 
     private void updateTitle() {

@@ -99,7 +99,7 @@ public class CastPlayback implements Playback {
         mContext = context;
         this.mMusicProvider = musicProvider;
         this.mWifiLock = ((WifiManager) context.getSystemService(Context.WIFI_SERVICE))
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "uAmp_lock");
+                .createWifiLock(WifiManager.WIFI_MODE_FULL, "Jive_lock");
     }
 
     @Override

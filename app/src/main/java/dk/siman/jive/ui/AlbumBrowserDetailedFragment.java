@@ -49,7 +49,6 @@ import dk.siman.jive.model.MusicProvider;
 import dk.siman.jive.utils.ArtHelper;
 import dk.siman.jive.utils.LogHelper;
 import dk.siman.jive.utils.MediaIDHelper;
-import dk.siman.jive.utils.NetworkHelper;
 
 /**
  * A Fragment that lists all the various browsable queues available
@@ -76,19 +75,12 @@ public class AlbumBrowserDetailedFragment extends Fragment {
     private int lastTopValue = 0;
 
     private final BroadcastReceiver mConnectivityChangeReceiver = new BroadcastReceiver() {
-        private boolean oldOnline = false;
         @Override
         public void onReceive(Context context, Intent intent) {
             // We don't care about network changes while this fragment is not associated
             // with a media ID (for example, while it is being initialized)
             if (mMediaId != null) {
-                boolean isOnline = NetworkHelper.isOnline(context);
-                if (isOnline != oldOnline) {
-                    oldOnline = isOnline;
-                    if (isOnline) {
-                        mBrowserAdapter.notifyDataSetChanged();
-                    }
-                }
+                mBrowserAdapter.notifyDataSetChanged();
             }
         }
     };

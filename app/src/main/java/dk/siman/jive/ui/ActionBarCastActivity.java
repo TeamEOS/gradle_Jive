@@ -15,9 +15,12 @@
  */
 package dk.siman.jive.ui;
 
+import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -42,6 +45,8 @@ import android.widget.Toast;
 
 import com.github.amlcurran.showcaseview.ShowcaseView;
 import com.github.amlcurran.showcaseview.targets.ViewTarget;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.callbacks.VideoCastConsumerImpl;
 
@@ -77,6 +82,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
     private boolean mToolbarInitialized;
     private boolean doubleBackToExitPressedOnce = false;
+    private boolean playService;
 
     private int mItemToOpenWhenDrawerCloses = -1;
 
@@ -177,11 +183,40 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
         updateLoggingStatus(getApplicationContext());
         LogHelper.d(TAG, "Activity onCreate");
 
-        // Ensure that Google Play Service is available.
-        VideoCastManager.checkGooglePlayServices(this);
+        // Check if Google Play Service is available.
+        playService = checkGooglePlayServices(this);
+        if (playService) {
+            LogHelper.d(TAG, "PlayService found");
+            mCastManager = VideoCastManager.getInstance();
+            mCastManager.reconnectSessionIfPossible();
+        } else {
+            LogHelper.d(TAG, "PlayService not found");
+        }
+    }
 
-        mCastManager = VideoCastManager.getInstance();
-        mCastManager.reconnectSessionIfPossible();
+    public static boolean checkGooglePlayServices(final Activity activity) {
+        final int googlePlayServicesCheck
+                = GooglePlayServicesUtil.isGooglePlayServicesAvailable(
+                activity);
+        switch (googlePlayServicesCheck) {
+            case ConnectionResult.SUCCESS:
+                return true;
+            case ConnectionResult.SERVICE_DISABLED:
+                LogHelper.d(TAG, "checkGooglePlayServices SERVICE_DISABLED");
+                return false;
+            case ConnectionResult.SERVICE_INVALID:
+                LogHelper.d(TAG, "checkGooglePlayServices SERVICE_INVALID");
+                return false;
+            case ConnectionResult.SERVICE_MISSING:
+                LogHelper.d(TAG, "checkGooglePlayServices SERVICE_MISSING");
+                return false;
+            case ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED:
+                LogHelper.d(TAG, "checkGooglePlayServices SERVICE_VERSION_UPDATE_REQUIRED");
+                return false;
+            default:
+                LogHelper.d(TAG, "checkGooglePlayServices failed");
+        }
+        return false;
     }
 
     private void updateLoggingStatus(Context context) {
@@ -213,8 +248,10 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         LogHelper.d(TAG, "Activity onResume");
-        mCastManager.addVideoCastConsumer(mCastConsumer);
-        mCastManager.incrementUiCounter();
+        if (playService) {
+            mCastManager.addVideoCastConsumer(mCastConsumer);
+            mCastManager.incrementUiCounter();
+        }
 
         // Whenever the fragment back stack changes, we may need to update the
         // action bar toggle: only top level screens show the hamburger-like icon, inner
@@ -235,8 +272,10 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         LogHelper.d(TAG, "Activity onPause");
-        mCastManager.removeVideoCastConsumer(mCastConsumer);
-        mCastManager.decrementUiCounter();
+        if (playService) {
+            mCastManager.removeVideoCastConsumer(mCastConsumer);
+            mCastManager.decrementUiCounter();
+        }
         getFragmentManager().removeOnBackStackChangedListener(mBackStackChangedListener);
     }
 
@@ -244,7 +283,9 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.main, menu);
-        mMediaRouteMenuItem = mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
+        if (playService) {
+            mMediaRouteMenuItem = mCastManager.addMediaRouterButton(menu, R.id.media_route_menu_item);
+        }
 
         return true;
     }

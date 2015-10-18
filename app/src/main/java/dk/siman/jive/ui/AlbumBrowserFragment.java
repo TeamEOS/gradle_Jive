@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v13.app.FragmentCompat;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +51,6 @@ import dk.siman.jive.adater.AlbumListAdapter;
 import dk.siman.jive.model.MusicProvider;
 import dk.siman.jive.utils.LogHelper;
 import dk.siman.jive.utils.MediaIDHelper;
-import dk.siman.jive.utils.NetworkHelper;
 import dk.siman.jive.utils.PermissionHelper;
 
 import static dk.siman.jive.utils.MediaIDHelper.MEDIA_ID_MUSICS_BY_ALBUM;
@@ -90,34 +88,27 @@ public class AlbumBrowserFragment extends Fragment {
             Manifest.permission.READ_EXTERNAL_STORAGE};
 
     private final BroadcastReceiver mConnectivityChangeReceiver = new BroadcastReceiver() {
-        private boolean oldOnline = false;
         @Override
         public void onReceive(Context context, Intent intent) {
+            LogHelper.d(TAG, "onReceive");
             // We don't care about network changes while this fragment is not associated
             // with a media ID (for example, while it is being initialized)
             if (mMediaId != null) {
-                boolean isOnline = NetworkHelper.isOnline(context);
-                if (isOnline != oldOnline) {
-                    oldOnline = isOnline;
-                    checkForUserVisibleErrors(false);
-                    if (isOnline) {
-                        if (mAlbumListAdapter != null) {
-                            // Verify that all required storage permissions have been granted.
-                            if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                    != PackageManager.PERMISSION_GRANTED)
-                                    || (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
-                                    != PackageManager.PERMISSION_GRANTED)) {
-                                // Storage permissions have not been granted.
-                                requestStoragePermissions();
-                            } else {
-                                // Storage permissions have been granted. Save wallpaper.
-                                mAlbumListAdapter.notifyDataSetChanged();
-                            }
-                        } else {
-                            LogHelper.e(TAG, "onReceive, mAlbumListAdapteris null, recreating fragment");
-                            recreateFragment();
-                        }
+                if (mAlbumListAdapter != null) {
+                    // Verify that all required storage permissions have been granted.
+                    if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED)
+                            || (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
+                            != PackageManager.PERMISSION_GRANTED)) {
+                        // Storage permissions have not been granted.
+                        requestStoragePermissions();
+                    } else {
+                        // Storage permissions have been granted. Save wallpaper.
+                        mAlbumListAdapter.notifyDataSetChanged();
                     }
+                } else {
+                    LogHelper.e(TAG, "onReceive, mAlbumListAdapter is null, recreating fragment");
+                    recreateFragment();
                 }
             }
         }
@@ -240,6 +231,15 @@ public class AlbumBrowserFragment extends Fragment {
         super.onStart();
 
         initOnConnected();
+
+        // Verify that all required storage permissions have been granted.
+        if ((ContextCompat.checkSelfPermission(mContext, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)
+                || (ContextCompat.checkSelfPermission(mContext, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED)) {
+            // Storage permissions have not been granted.
+            requestStoragePermissions();
+        }
 
         // Registers BroadcastReceiver to track network connection changes.
         this.getActivity().registerReceiver(mConnectivityChangeReceiver,
@@ -366,8 +366,7 @@ public class AlbumBrowserFragment extends Fragment {
             mErrorView.setVisibility(showError ? View.VISIBLE : View.GONE);
         }
         LogHelper.d(TAG, "checkForUserVisibleErrors. forceError=", forceError,
-                " showError=", showError,
-                " isOnline=", NetworkHelper.isOnline(getActivity()));
+                " showError=", showError);
 
     }
 
