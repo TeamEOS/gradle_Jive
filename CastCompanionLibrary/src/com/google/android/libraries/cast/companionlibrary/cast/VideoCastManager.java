@@ -156,6 +156,7 @@ public class VideoCastManager extends BaseCastManager
     private MediaStatus mMediaStatus;
     private Timer mProgressTimer;
     private UpdateProgressTask mProgressTask;
+    private FetchBitmapTask mLockScreenFetchTask;
 
     /**
      * Volume can be controlled at two different layers, one is at the "stream" level and one at
@@ -812,6 +813,7 @@ public class VideoCastManager extends BaseCastManager
 
     private void onApplicationDisconnected(int errorCode) {
         LOGD(TAG, "onApplicationDisconnected() reached with error code: " + errorCode);
+        mApplicationErrorCode = errorCode;
         updateMediaSession(false);
         if (mMediaSessionCompat != null && isFeatureEnabled(FEATURE_LOCKSCREEN)) {
             mMediaRouter.setMediaSessionCompat(null);
@@ -868,7 +870,7 @@ public class VideoCastManager extends BaseCastManager
             String applicationStatus, String sessionId, boolean wasLaunched) {
         LOGD(TAG, "onApplicationConnected() reached with sessionId: " + sessionId
                 + ", and mReconnectionStatus=" + mReconnectionStatus);
-
+        mApplicationErrorCode = NO_APPLICATION_ERROR;
         if (mReconnectionStatus == RECONNECTION_STATUS_IN_PROGRESS) {
             // we have tried to reconnect and successfully launched the app, so
             // it is time to select the route and make the cast icon happy :-)
@@ -944,6 +946,7 @@ public class VideoCastManager extends BaseCastManager
     @Override
     public void onApplicationConnectionFailed(int errorCode) {
         LOGD(TAG, "onApplicationConnectionFailed() reached with errorCode: " + errorCode);
+        mApplicationErrorCode = errorCode;
         if (mReconnectionStatus == RECONNECTION_STATUS_IN_PROGRESS) {
             if (errorCode == CastStatusCodes.APPLICATION_NOT_RUNNING) {
                 // while trying to re-establish session, we found out that the app is not running
@@ -1167,7 +1170,7 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Plays the item with {@code itemId} in the queue.
-     *
+     * <p>
      * If {@code itemId} is not found in the queue, this method will report success without sending
      * a request to the receiver.
      *
@@ -1243,7 +1246,7 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Removes the item with {@code itemId} from the queue.
-     *
+     * <p>
      * If {@code itemId} is not found in the queue, this method will silently return without sending
      * a request to the receiver. A {@code itemId} may not be in the queue because it wasn't
      * originally in the queue, or it was removed by another sender.
@@ -1347,7 +1350,7 @@ public class VideoCastManager extends BaseCastManager
 
     /**
      * Moves the item with {@code itemId} to a new position in the queue.
-     *
+     * <p>
      * If {@code itemId} is not found in the queue, either because it wasn't there originally or it
      * was removed by another sender before calling this function, this function will silently
      * return without sending a request to the receiver.
@@ -2029,7 +2032,6 @@ public class VideoCastManager extends BaseCastManager
         } else {
             onQueueUpdated(null, null, MediaStatus.REPEAT_MODE_REPEAT_OFF, false);
         }
-        int currentItemId = mMediaStatus.getCurrentItemId();
         if (queueItems != null && !queueItems.isEmpty()) {
             for (MediaQueueItem item : queueItems) {
                 LOGD(TAG, "[queue] Queue Item is: " + item.toJson());
@@ -2127,8 +2129,8 @@ public class VideoCastManager extends BaseCastManager
     /*
     * This is called by onQueueStatusUpdated() of RemoteMediaPlayer
     */
-    private void onQueueUpdated(List<MediaQueueItem> queueItems, MediaQueueItem item, int repeatMode,
-            boolean shuffle) {
+    private void onQueueUpdated(List<MediaQueueItem> queueItems, MediaQueueItem item,
+            int repeatMode, boolean shuffle) {
         LOGD(TAG, "onQueueUpdated() reached");
         LOGD(TAG, String.format("Queue Items size: %d, Item: %s, Repeat Mode: %d, Shuffle: %s",
                 queueItems == null ? 0 : queueItems.size(), item, repeatMode, shuffle));
@@ -2178,7 +2180,8 @@ public class VideoCastManager extends BaseCastManager
         }
         if (mMediaSessionCompat == null) {
             mMediaEventReceiver = new ComponentName(mContext, VideoIntentReceiver.class.getName());
-            mMediaSessionCompat = new MediaSessionCompat(mContext, "TAG", mMediaEventReceiver, null);
+            mMediaSessionCompat = new MediaSessionCompat(mContext, "TAG", mMediaEventReceiver,
+                    null);
             mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                     | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
             mMediaSessionCompat.setActive(true);
@@ -2189,14 +2192,28 @@ public class VideoCastManager extends BaseCastManager
                             .getParcelableExtra(Intent.EXTRA_KEY_EVENT);
                     if (keyEvent != null && (keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PAUSE
                             || keyEvent.getKeyCode() == KeyEvent.KEYCODE_MEDIA_PLAY)) {
-                        try {
-                            togglePlayback();
-                        } catch (CastException | TransientNetworkDisconnectionException |
-                                NoConnectionException e) {
-                            LOGE(TAG, "onMediaButtonEvent(): Failed to toggle playback", e);
-                        }
+                        toggle();
                     }
                     return true;
+                }
+
+                @Override
+                public void onPlay() {
+                    toggle();
+                }
+
+                @Override
+                public void onPause() {
+                    toggle();
+                }
+
+                private void toggle() {
+                    try {
+                        togglePlayback();
+                    } catch (CastException | TransientNetworkDisconnectionException |
+                        NoConnectionException e) {
+                        LOGE(TAG, "MediaSessionCompat.Callback(): Failed to toggle playback", e);
+                    }
                 }
             });
         }
@@ -2265,19 +2282,23 @@ public class VideoCastManager extends BaseCastManager
                     .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bm)
                     .build());
         } else {
-            new FetchBitmapTask() {
+            mLockScreenFetchTask = new FetchBitmapTask() {
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
-                    MediaMetadataCompat currentMetadata = mMediaSessionCompat.getController()
-                            .getMetadata();
-                    MediaMetadataCompat.Builder newBuilder = currentMetadata == null
-                            ? new MediaMetadataCompat.Builder()
-                            : new MediaMetadataCompat.Builder(currentMetadata);
-                    mMediaSessionCompat.setMetadata(newBuilder
-                            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
-                            .build());
+                    if (mMediaSessionCompat != null) {
+                        MediaMetadataCompat currentMetadata = mMediaSessionCompat.getController()
+                                .getMetadata();
+                        MediaMetadataCompat.Builder newBuilder = currentMetadata == null
+                                ? new MediaMetadataCompat.Builder()
+                                : new MediaMetadataCompat.Builder(currentMetadata);
+                        mMediaSessionCompat.setMetadata(newBuilder
+                                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+                                .build());
+                    }
+                    mLockScreenFetchTask = null;
                 }
-            }.execute(imgUrl);
+            };
+            mLockScreenFetchTask.execute(imgUrl);
         }
     }
     /*
@@ -2351,6 +2372,9 @@ public class VideoCastManager extends BaseCastManager
     public void clearMediaSession() {
         LOGD(TAG, "clearMediaSession()");
         if (isFeatureEnabled(FEATURE_LOCKSCREEN)) {
+            if (mLockScreenFetchTask != null) {
+                mLockScreenFetchTask.cancel(true);
+            }
             mAudioManager.abandonAudioFocus(null);
             if (mMediaSessionCompat != null) {
                 mMediaSessionCompat.setActive(false);
@@ -2432,6 +2456,7 @@ public class VideoCastManager extends BaseCastManager
      */
     public void removeMiniController(IMiniController listener) {
         if (listener != null) {
+            listener.setOnMiniControllerChangedListener(null);
             synchronized (mMiniControllers) {
                 mMiniControllers.remove(listener);
             }
