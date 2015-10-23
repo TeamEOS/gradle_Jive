@@ -175,6 +175,14 @@
         <service
             android:name="com.google.android.libraries.cast.companionlibrary.cast.reconnection.ReconnectionService"/>
 
+        <service
+            android:name="com.google.android.libraries.cast.companionlibrary.notification.VideoCastNotificationService"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.google.android.libraries.cast.companionlibrary.action.notificationvisibility" />
+            </intent-filter>
+        </service>
+
         <!-- A full screen activity showing controls and a seek bar for
              the current playing music -->
         <activity

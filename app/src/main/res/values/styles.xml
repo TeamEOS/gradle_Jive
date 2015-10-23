@@ -28,6 +28,8 @@
         <item name="colorPrimary">@color/bt_accent</item>
         <item name="colorPrimaryDark">@color/bt_accent_dark</item>
         <item name="colorAccent">@color/bt_accent</item>
+
+        <item name="alertDialogTheme">@style/AppTheme.Dialog</item>
     </style>
 
 
@@ -68,5 +70,10 @@
         <item name="android:colorPrimary">@color/tv_branding_dark</item>
         <item name="android:colorPrimaryDark">@color/tv_branding_dark</item>
         <item name="android:colorAccent">@color/tv_branding_accent</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorPrimary">@color/bt_accent</item>
+        <item name="colorPrimaryDark">@color/bt_accent_dark</item>
     </style>
 </resources>

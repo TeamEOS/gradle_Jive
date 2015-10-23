@@ -57,7 +57,7 @@ class DrawerMenuContents {
 
         activities[5] = SettingsActivity.class;
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_settings_title),
-                R.drawable.ic_setting_dark));
+                R.drawable.ic_settings_black_24dp));
 
         activities[6] = AboutActivity.class;
         items.add(populateDrawerItem(ctx.getString(R.string.drawer_about_title),

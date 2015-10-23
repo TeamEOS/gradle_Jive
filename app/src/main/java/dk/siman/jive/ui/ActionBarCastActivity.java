@@ -17,10 +17,8 @@ package dk.siman.jive.ui;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
-import android.app.Dialog;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -306,6 +304,7 @@ public abstract class ActionBarCastActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        LogHelper.d(TAG, "onOptionsItemSelected");
         if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }

@@ -22,12 +22,6 @@ import com.google.android.libraries.cast.companionlibrary.cast.player.VideoCastC
 
 import dk.siman.jive.ui.FullScreenPlayerActivity;
 
-import static com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager.FEATURE_CAPTIONS_PREFERENCE;
-import static com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager.FEATURE_DEBUGGING;
-import static com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager.FEATURE_LOCKSCREEN;
-import static com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager.FEATURE_NOTIFICATION;
-import static com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager.FEATURE_WIFI_RECONNECT;
-
 /**
  * The {@link Application} for the uAmp application.
  */
@@ -43,11 +37,10 @@ public class JIVEApplication extends Application {
                 FullScreenPlayerActivity.class,
                 null);
 
-        castManager.enableFeatures(FEATURE_WIFI_RECONNECT |
-                FEATURE_DEBUGGING |
-                FEATURE_NOTIFICATION |
-                FEATURE_LOCKSCREEN |
-                FEATURE_CAPTIONS_PREFERENCE);
+        castManager.enableFeatures(VideoCastManager.FEATURE_WIFI_RECONNECT |
+                VideoCastManager.FEATURE_AUTO_RECONNECT |
+                VideoCastManager.FEATURE_CAPTIONS_PREFERENCE |
+                VideoCastManager.FEATURE_DEBUGGING);
 
         // this is the default behavior but is mentioned to make it clear that it is configurable.
         VideoCastManager.getInstance().setNextPreviousVisibilityPolicy(
