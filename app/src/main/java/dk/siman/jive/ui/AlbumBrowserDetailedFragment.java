@@ -223,6 +223,7 @@ public class AlbumBrowserDetailedFragment extends Fragment {
     public void onResume() {
         super.onResume();
         LogHelper.d(TAG, "onResume");
+        AlbumPlayerActivity.detailedView = true;
 
         MediaBrowser mediaBrowser = mMediaFragmentListener.getMediaBrowser();
         if (mediaBrowser.isConnected()) {
@@ -366,6 +367,9 @@ public class AlbumBrowserDetailedFragment extends Fragment {
                         if (controller.getPlaybackState().getState() ==
                                 PlaybackState.STATE_PLAYING) {
                             state = MediaItemViewHolder.STATE_PLAYING;
+                        } else if (controller.getPlaybackState().getState() ==
+                                PlaybackState.STATE_ERROR) {
+                            state = MediaItemViewHolder.STATE_PAUSED;
                         } else if (controller.getPlaybackState().getState() !=
                                 PlaybackState.STATE_ERROR) {
                             state = MediaItemViewHolder.STATE_PAUSED;

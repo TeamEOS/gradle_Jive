@@ -55,7 +55,7 @@ public class AlbumPlayerActivity extends BaseActivity
 
     private Bundle mVoiceSearchParams;
 
-    private Boolean detailedView = false;
+    public static Boolean detailedView = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
